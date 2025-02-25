@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chatbot Simulator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    
+    .chat-container {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+    }
+    
+    .chat-header {
+      background: #4a6fa5;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .message {
+      margin-bottom: 15px;
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 18px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    
+    .user-message {
+      background: #e6e6e6;
+      color: #333;
+      margin-left: auto;
+      border-bottom-right-radius: 5px;
+    }
+    
+    .bot-message {
+      background: #4a6fa5;
+      color: white;
+      margin-right: auto;
+      border-bottom-left-radius: 5px;
+    }
+    
+    .chat-input {
+      display: flex;
+      padding: 15px;
+      background: #f9f9f9;
+      border-top: 1px solid #eee;
+    }
+    
+    #user-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+      font-size: 16px;
+    }
+    
+    #send-button {
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    #send-button:hover {
+      background: #3a5a8f;
+    }
+    
+    .typing-indicator {
+      display: none;
+      margin-bottom: 15px;
+    }
+    
+    .typing-indicator span {
+      height: 10px;
+      width: 10px;
+      margin: 0 1px;
+      background-color: #4a6fa5;
+      display: inline-block;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: typing 1s infinite;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    
+    @keyframes typing {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      Website Assistant
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="message bot-message">
+        Hi there! 👋 I'm your assistant. How can I help you today?
+      </div>
+      <div class="typing-indicator" id="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Type your message here...">
+      <button id="send-button">Send</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const messagesContainer = document.getElementById('chat-messages');
+      const userInput = document.getElementById('user-input');
+      const sendButton = document.getElementById('send-button');
+      const typingIndicator = document.getElementById('typing-indicator');
+      
+      // Predefined responses for different keywords
+      const responses = {
+        'hello': "Hello! How can I assist you today?",
+        'hi': "Hi there! What can I help you with?",
+        'hey': "Hey! What brings you here today?",
+        'help': "I'd be happy to help! Please let me know what you need assistance with.",
+        'product': "We offer a range of products designed to meet your needs. Would you like more specific information about any particular product?",
+        'price': "Our pricing starts at $9.99 per month. We also offer custom packages for businesses. Would you like to see our full pricing details?",
+        'contact': "You can reach our support team at support@example.com or call us at (555) 123-4567 during business hours.",
+        'hours': "Our business hours are Monday to Friday, 9 AM to 6 PM EST.",
+        'location': "We're located at 123 Business Street, Suite 456, Cityville. Would you like directions?",
+        'thanks': "You're welcome! Is there anything else I can help you with?",
+        'thank you': "You're welcome! Is there anything else I can help you with?",
+        'bye': "Thank you for chatting! Have a great day!",
+        'goodbye': "Goodbye! Feel free to come back if you have more questions."
+      };
+      
+      // Default response for unrecognized inputs
+      const defaultResponse = "I'm not sure I understand. Could you please rephrase or ask another question? You can ask about our products, pricing, contact information, or business hours.";
+      
+      // Function to add a message to the chat
+      function addMessage(text, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+        messageDiv.textContent = text;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+      
+      // Function to show typing indicator
+      function showTypingIndicator() {
+        typingIndicator.style.display = 'block';
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+      
+      // Function to hide typing indicator
+      function hideTypingIndicator() {
+        typingIndicator.style.display = 'none';
+      }
+      
+      // Function to process user input and generate a response
+      function processInput() {
+        const text = userInput.value.trim();
+        if (text === '') return;
+        
+        // Add user message
+        addMessage(text, true);
+        userInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Find a matching response or use default
+        setTimeout(() => {
+          hideTypingIndicator();
+          
+          let botResponse = defaultResponse;
+          const lowerText = text.toLowerCase();
+          
+          // Check for keyword matches
+          for (const keyword in responses) {
+            if (lowerText.includes(keyword)) {
+              botResponse = responses[keyword];
+              break;
+            }
+          }
+          
+          addMessage(botResponse, false);
+        }, 1000 + Math.random() * 500); // Random delay between 1-1.5 seconds
+      }
+      
+      // Event listeners
+      sendButton.addEventListener('click', processInput);
+      userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          processInput();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
