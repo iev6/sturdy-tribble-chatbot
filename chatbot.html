@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Chatbot Simulator</title>
+  <title>Chatbot with Llama Integration</title>
   <style>
     * {
       box-sizing: border-box;
@@ -126,6 +126,25 @@
       animation-delay: 0.4s;
     }
     
+    .mode-switch {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      background: #f0f0f0;
+    }
+    
+    .mode-switch label {
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    
+    .mode-switch select {
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    
     @keyframes typing {
       0% { opacity: 0.4; }
       50% { opacity: 1; }
@@ -136,11 +155,18 @@
 <body>
   <div class="chat-container">
     <div class="chat-header">
-      Website Assistant
+      Llama-Powered Assistant
+    </div>
+    <div class="mode-switch">
+      <label for="chat-mode">Mode:</label>
+      <select id="chat-mode">
+        <option value="canned">Canned Responses</option>
+        <option value="llm">Llama LLM</option>
+      </select>
     </div>
     <div class="chat-messages" id="chat-messages">
       <div class="message bot-message">
-        Hi there! 👋 I'm your assistant. How can I help you today?
+        Hi there! 👋 I'm your Llama-powered assistant. How can I help you today?
       </div>
       <div class="typing-indicator" id="typing-indicator">
         <span></span>
@@ -160,9 +186,19 @@
       const userInput = document.getElementById('user-input');
       const sendButton = document.getElementById('send-button');
       const typingIndicator = document.getElementById('typing-indicator');
+      const chatMode = document.getElementById('chat-mode');
       
-      // Predefined responses for different keywords
-      const responses = {
+      // Replace with your Cloudflare Worker URL
+      const WORKER_URL = 'https://empty-star-49ab.giridhurs.workers.dev/';
+      
+      // Chat history for context in LLM mode
+      let chatHistory = [
+        { role: "system", content: "You are a helpful, friendly assistant powered by a Llama model. Your answers should be concise and helpful." },
+        { role: "assistant", content: "Hi there! 👋 I'm your Llama-powered assistant. How can I help you today?" }
+      ];
+      
+      // Predefined responses for canned mode
+      const cannedResponses = {
         'hello': "Hello! How can I assist you today?",
         'hi': "Hi there! What can I help you with?",
         'hey': "Hey! What brings you here today?",
@@ -178,8 +214,8 @@
         'goodbye': "Goodbye! Feel free to come back if you have more questions."
       };
       
-      // Default response for unrecognized inputs
-      const defaultResponse = "I'm not sure I understand. Could you please rephrase or ask another question? You can ask about our products, pricing, contact information, or business hours.";
+      // Default response for unrecognized inputs in canned mode
+      const defaultCannedResponse = "I'm not sure I understand. Could you please rephrase or ask another question? You can ask about our products, pricing, contact information, or business hours.";
       
       // Function to add a message to the chat
       function addMessage(text, isUser) {
@@ -202,8 +238,60 @@
         typingIndicator.style.display = 'none';
       }
       
+      // Function to get canned response
+      function getCannedResponse(text) {
+        const lowerText = text.toLowerCase();
+        for (const keyword in cannedResponses) {
+          if (lowerText.includes(keyword)) {
+            return cannedResponses[keyword];
+          }
+        }
+        return defaultCannedResponse;
+      }
+      
+      // Function to get response from Llama model via Cloudflare Worker
+      async function getLlamaResponse(userMessage) {
+        try {
+          // Add user message to history
+          chatHistory.push({ role: "user", content: userMessage });
+          
+          const response = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              messages: chatHistory,
+              max_tokens: 256,
+              temperature: 0.7,
+            }),
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to get response from LLM');
+          }
+          
+          const data = await response.json();
+          const assistantMessage = data.response || "Sorry, I couldn't generate a response.";
+          
+          // Add assistant message to history (limited to last 10 exchanges to prevent context overflow)
+          chatHistory.push({ role: "assistant", content: assistantMessage });
+          if (chatHistory.length > 21) { // system prompt + 10 exchanges (user + assistant)
+            chatHistory = [
+              chatHistory[0], // Keep system prompt
+              ...chatHistory.slice(-20) // Keep last 10 exchanges
+            ];
+          }
+          
+          return assistantMessage;
+        } catch (error) {
+          console.error('Error calling Llama via Cloudflare Worker:', error);
+          return "I'm having trouble connecting to my brain right now. Please try again later.";
+        }
+      }
+      
       // Function to process user input and generate a response
-      function processInput() {
+      async function processInput() {
         const text = userInput.value.trim();
         if (text === '') return;
         
@@ -214,23 +302,27 @@
         // Show typing indicator
         showTypingIndicator();
         
-        // Find a matching response or use default
-        setTimeout(() => {
-          hideTypingIndicator();
-          
-          let botResponse = defaultResponse;
-          const lowerText = text.toLowerCase();
-          
-          // Check for keyword matches
-          for (const keyword in responses) {
-            if (lowerText.includes(keyword)) {
-              botResponse = responses[keyword];
-              break;
-            }
+        let botResponse;
+        
+        if (chatMode.value === 'canned') {
+          // Use canned responses
+          botResponse = getCannedResponse(text);
+          setTimeout(() => {
+            hideTypingIndicator();
+            addMessage(botResponse, false);
+          }, 800 + Math.random() * 500);
+        } else {
+          // Use Llama LLM
+          try {
+            botResponse = await getLlamaResponse(text);
+            hideTypingIndicator();
+            addMessage(botResponse, false);
+          } catch (error) {
+            console.error('Error getting LLM response:', error);
+            hideTypingIndicator();
+            addMessage("I'm having trouble connecting to my brain right now. Please try again later.", false);
           }
-          
-          addMessage(botResponse, false);
-        }, 1000 + Math.random() * 500); // Random delay between 1-1.5 seconds
+        }
       }
       
       // Event listeners
