@@ -188,7 +188,7 @@
       const typingIndicator = document.getElementById('typing-indicator');
       const chatMode = document.getElementById('chat-mode');
       
-      // Replace with your Cloudflare Worker URL
+      // Replace with your actual Cloudflare Worker URL
       const WORKER_URL = 'https://empty-star-49ab.giridhurs.workers.dev/';
       
       // Chat history for context in LLM mode
@@ -268,7 +268,9 @@
           });
           
           if (!response.ok) {
-            throw new Error('Failed to get response from LLM');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Error from LLM service:', errorData);
+            throw new Error(`Server responded with ${response.status}`);
           }
           
           const data = await response.json();
@@ -332,6 +334,31 @@
           processInput();
         }
       });
+      
+      // Add a test button temporarily for debugging
+      const testButton = document.createElement('button');
+      testButton.textContent = 'Test Llama Connection';
+      testButton.style.position = 'fixed';
+      testButton.style.bottom = '10px';
+      testButton.style.right = '10px';
+      testButton.style.padding = '8px 12px';
+      testButton.style.background = '#4a6fa5';
+      testButton.style.color = 'white';
+      testButton.style.border = 'none';
+      testButton.style.borderRadius = '4px';
+      testButton.style.cursor = 'pointer';
+      
+      testButton.addEventListener('click', async function() {
+        console.log('Testing Llama connection...');
+        chatMode.value = 'llm'; // Ensure we're in LLM mode
+        const testResponse = await getLlamaResponse('Hello, are you working?');
+        console.log('Test response:', testResponse);
+        alert('Check console for test results');
+      });
+      
+      document.body.appendChild(testButton);
+      
+      // You can remove the test button code in production
     });
   </script>
 </body>
