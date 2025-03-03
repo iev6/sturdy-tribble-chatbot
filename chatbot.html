@@ -275,14 +275,6 @@
         <div class="input-section">
             <textarea class="prompt-input" placeholder="Enter an idea or concept you'd like to explore (e.g., 'Starting a sustainable bakery', 'Innovations in renewable energy', etc.)"></textarea>
             
-            <div class="api-config">
-                <h3>Cloudflare AI API Configuration</h3>
-                <input type="text" class="api-input" id="account-id" placeholder="Cloudflare Account ID">
-                <input type="text" class="api-input" id="api-token" placeholder="Cloudflare API Token">
-                <input type="text" class="api-input" id="model-name" placeholder="Model Name (e.g., @cf/meta/llama-3-8b-instruct)" value="@cf/meta/llama-3-8b-instruct">
-                <button class="control-btn" id="save-config">Save Configuration</button>
-                <div class="saved-keys" id="saved-keys-status"></div>
-            </div>
             
             <button class="generate-btn">Generate Mindmap</button>
             <div class="loading">Generating your mindmap</div>
@@ -408,14 +400,13 @@
                     return ['Configuration required'];
                 }
                 
-                const cloudflareAiEndpoint = `https://api.cloudflare.com/client/v4/accounts/${cloudflareConfig.accountId}/ai/run/${cloudflareConfig.modelName}`;
+                const cloudflareAiEndpoint = `https://empty-star-49ab.giridhurs.workers.dev/`;
                 
                 try {
                     const response = await fetch(cloudflareAiEndpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${cloudflareConfig.apiToken}`
                         },
                         body: JSON.stringify({
                             messages: [
