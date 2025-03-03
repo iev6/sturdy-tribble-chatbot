@@ -310,29 +310,6 @@
             const expandModeBtn = document.getElementById('expand-mode');
             const deleteModeBtn = document.getElementById('delete-mode');
             const tooltip = document.getElementById('tooltip');
-            const accountIdInput = document.getElementById('account-id');
-            const apiTokenInput = document.getElementById('api-token');
-            const modelNameInput = document.getElementById('model-name');
-            const saveConfigBtn = document.getElementById('save-config');
-            const savedKeysStatus = document.getElementById('saved-keys-status');
-            
-            // Interaction mode (expand or delete)
-            let interactionMode = 'expand';
-            
-            // Cloudflare AI API configuration
-            let cloudflareConfig = {
-                accountId: localStorage.getItem('cf-account-id') || '',
-                apiToken: localStorage.getItem('cf-api-token') || '',
-                modelName: localStorage.getItem('cf-model-name') || '@cf/meta/llama-3-8b-instruct'
-            };
-            
-            // Initialize config inputs
-            accountIdInput.value = cloudflareConfig.accountId;
-            apiTokenInput.value = cloudflareConfig.apiToken;
-            modelNameInput.value = cloudflareConfig.modelName;
-            
-            // Update status message for saved keys
-            updateSavedKeysStatus();
             
             // D3 setup
             const width = mindmapContainer.clientWidth;
@@ -371,34 +348,6 @@
             // Initial data
             let root = null;
             
-            // Function to save Cloudflare configuration
-            function saveCloudflareConfig() {
-                cloudflareConfig.accountId = accountIdInput.value.trim();
-                cloudflareConfig.apiToken = apiTokenInput.value.trim();
-                cloudflareConfig.modelName = modelNameInput.value.trim();
-                
-                localStorage.setItem('cf-account-id', cloudflareConfig.accountId);
-                localStorage.setItem('cf-api-token', cloudflareConfig.apiToken);
-                localStorage.setItem('cf-model-name', cloudflareConfig.modelName);
-                
-                updateSavedKeysStatus();
-            }
-            
-            // Function to update saved keys status message
-            function updateSavedKeysStatus() {
-                if (cloudflareConfig.accountId && cloudflareConfig.apiToken) {
-                    savedKeysStatus.innerHTML = 'API Configuration: <span>Saved</span>';
-                } else {
-                    savedKeysStatus.innerHTML = 'API Configuration: <span>Not configured</span>';
-                }
-            }
-            
-            // Function to query the Cloudflare AI API for branches
-            async function queryLLM(prompt) {
-                if (!cloudflareConfig.accountId || !cloudflareConfig.apiToken) {
-                    alert('Please configure your Cloudflare AI API credentials first.');
-                    return ['Configuration required'];
-                }
                 
                 const cloudflareAiEndpoint = `https://empty-star-49ab.giridhurs.workers.dev/`;
                 
