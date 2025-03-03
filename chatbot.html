@@ -301,7 +301,7 @@
                 try {
                     // Get initial branches from LLM
                     const branches = await queryLLM(prompt);
-                    
+                    console.log(branches);
                     // Create root node
                     root = d3.hierarchy({
                         name: prompt,
