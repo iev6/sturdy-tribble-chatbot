@@ -340,7 +340,7 @@
                 try {
                     // Get new branches from LLM
                     const branches = await queryLLM(d.data.name);
-                    console.log(branches) // melog
+                    //console.log(branches) // melog
                     // Add new branches to the node
                     if (!d.data.children) {
                         d.data.children = [];
@@ -352,7 +352,7 @@
                             children: []
                         });
                     });
-                    console.log(d.data.children) // melog
+                    //console.log(d.data.children) // melog
                     // Update mindmap
                     updateMindmap();
                 } catch (error) {
@@ -365,7 +365,7 @@
             
             // Function to update the mindmap visualization
             function updateMindmap() {
-                if (!root) return;
+                //if (!root) return; // melog
                 
                 // Apply tree layout
                 const treeData = treeLayout(root);
