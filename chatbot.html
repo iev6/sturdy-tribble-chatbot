@@ -263,6 +263,7 @@
                     
                     try {
                         // Try to extract JSON from the completion
+                        console.log(data);
                         const text = data.response || data.completion || '';
                         const jsonMatch = text.match(/\[.*?\]/s);
                         
