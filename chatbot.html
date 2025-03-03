@@ -249,7 +249,7 @@
                         body: JSON.stringify({
                             prompt: `Generate 4-5 subtopics or related concepts for exploring the topic: "${prompt}". 
                                      Format: Just provide a JSON array of strings like ["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"].
-                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}". Answer ONLY in the format`,
+                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}". Answer ONLY in the format, do not begin with a new line.`,
                             max_tokens: 300,
                             stream: false
                         })
@@ -305,7 +305,7 @@
                 try {
                     // Get initial branches from LLM
                     const branches = await queryLLM(prompt);
-                    console.log(branches);
+                    console.log(branches); // melog
                     // Create root node
                     root = d3.hierarchy({
                         name: prompt,
