@@ -249,7 +249,7 @@
                         body: JSON.stringify({
                             prompt: `Generate 4-5 subtopics or related concepts for exploring the topic: "${prompt}". 
                                      Format: Just provide a JSON array of strings like ["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"].
-                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}".`,
+                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}". Obey the format accurately`,
                             max_tokens: 300,
                             stream: false
                         })
@@ -263,10 +263,10 @@
                     
                     try {
                         // Try to extract JSON from the completion
-                        console.log(data);
                         const text = data.response || data.completion || '';
+                        console.log(text);
                         const jsonMatch = text.match(/\[.*?\]/s);
-                        
+                        console.log(jsonMatch);
                         if (jsonMatch) {
                             return JSON.parse(jsonMatch[0]);
                         } else {
