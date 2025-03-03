@@ -249,7 +249,7 @@
                         body: JSON.stringify({
                             prompt: `Generate 4-5 subtopics or related concepts for exploring the topic: "${prompt}". 
                                      Format: Just provide a JSON array of strings like ["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"].
-                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}". Obey the format accurately`,
+                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}". Answer ONLY in the format`,
                             max_tokens: 300,
                             stream: false
                         })
@@ -267,9 +267,9 @@
                         //console.log(data.completion);
                         //const text = data.response || data.completion || '';
                         const text = data.response; //iev6 edit
-                        // console.log(text); // melog
+                        console.log(text); // melog
                         const jsonMatch = text.match(/\[.*?\]/s);
-                        //console.log(jsonMatch);
+                        console.log(jsonMatch);
                         if (jsonMatch) {
                             return JSON.parse(jsonMatch[0]);
                         } else {
