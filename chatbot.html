@@ -266,7 +266,7 @@
                         //console.log(data.response);
                         //console.log(data.completion);
                         //const text = data.response || data.completion || '';
-                        const text = data;
+                        const text = data.result.response; //mine
                         console.log(text);
                         const jsonMatch = text.match(/\[.*?\]/s);
                         console.log(jsonMatch);
