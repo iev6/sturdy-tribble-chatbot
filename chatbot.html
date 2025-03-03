@@ -266,10 +266,10 @@
                         //console.log(data.response);
                         //console.log(data.completion);
                         //const text = data.response || data.completion || '';
-                        const text = data.result.response; //mine
-                        console.log(text);
+                        const text = data.response; //iev6 edit
+                        // console.log(text); // melog
                         const jsonMatch = text.match(/\[.*?\]/s);
-                        console.log(jsonMatch);
+                        //console.log(jsonMatch);
                         if (jsonMatch) {
                             return JSON.parse(jsonMatch[0]);
                         } else {
@@ -339,7 +339,7 @@
                 try {
                     // Get new branches from LLM
                     const branches = await queryLLM(d.data.name);
-                    
+                    console.log(branches) // melog
                     // Add new branches to the node
                     if (!d.data.children) {
                         d.data.children = [];
@@ -351,7 +351,7 @@
                             children: []
                         });
                     });
-                    
+                    console.log(d.data.children) // melog
                     // Update mindmap
                     updateMindmap();
                 } catch (error) {
@@ -372,6 +372,7 @@
                 // Compute the new tree layout
                 const nodes = treeData.descendants();
                 const links = treeData.links();
+                console.log(nodes); // melog
                 
                 // Define curved line generator
                 const linkGenerator = d3.linkHorizontal()
