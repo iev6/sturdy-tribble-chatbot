@@ -413,7 +413,6 @@
                 try {
                     const response = await fetch(cloudflareAiEndpoint, {
                         method: 'POST',
-                        mode: 'no-cors',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${cloudflareConfig.apiToken}`
