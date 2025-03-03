@@ -1,365 +1,490 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot with Llama Integration</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-    
-    body {
-      background-color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      padding: 20px;
-    }
-    
-    .chat-container {
-      width: 100%;
-      max-width: 500px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 500px;
-    }
-    
-    .chat-header {
-      background: #4a6fa5;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    
-    .chat-messages {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    
-    .message {
-      margin-bottom: 15px;
-      max-width: 80%;
-      padding: 10px 15px;
-      border-radius: 18px;
-      line-height: 1.4;
-      word-wrap: break-word;
-    }
-    
-    .user-message {
-      background: #e6e6e6;
-      color: #333;
-      margin-left: auto;
-      border-bottom-right-radius: 5px;
-    }
-    
-    .bot-message {
-      background: #4a6fa5;
-      color: white;
-      margin-right: auto;
-      border-bottom-left-radius: 5px;
-    }
-    
-    .chat-input {
-      display: flex;
-      padding: 15px;
-      background: #f9f9f9;
-      border-top: 1px solid #eee;
-    }
-    
-    #user-input {
-      flex: 1;
-      padding: 10px 15px;
-      border: 1px solid #ddd;
-      border-radius: 20px;
-      outline: none;
-      font-size: 16px;
-    }
-    
-    #send-button {
-      background: #4a6fa5;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin-left: 10px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    
-    #send-button:hover {
-      background: #3a5a8f;
-    }
-    
-    .typing-indicator {
-      display: none;
-      margin-bottom: 15px;
-    }
-    
-    .typing-indicator span {
-      height: 10px;
-      width: 10px;
-      margin: 0 1px;
-      background-color: #4a6fa5;
-      display: inline-block;
-      border-radius: 50%;
-      opacity: 0.4;
-      animation: typing 1s infinite;
-    }
-    
-    .typing-indicator span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    
-    .typing-indicator span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-    
-    .mode-switch {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      background: #f0f0f0;
-    }
-    
-    .mode-switch label {
-      margin-right: 10px;
-      font-size: 14px;
-    }
-    
-    .mode-switch select {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-    
-    @keyframes typing {
-      0% { opacity: 0.4; }
-      50% { opacity: 1; }
-      100% { opacity: 0.4; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Explorer - Mindmap</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f8fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #4a5568;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .prompt-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 6rem;
+        }
+        
+        .generate-btn {
+            padding: 0.75rem 1.5rem;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            align-self: flex-start;
+        }
+        
+        .generate-btn:hover {
+            background-color: #3182ce;
+        }
+        
+        .generate-btn:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        .mindmap-container {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+            overflow: hidden;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node circle {
+            fill: #fff;
+            stroke: #4299e1;
+            stroke-width: 3px;
+        }
+        
+        .node:hover circle {
+            fill: #ebf8ff;
+        }
+        
+        .node text {
+            font-size: 14px;
+        }
+        
+        .link {
+            fill: none;
+            stroke: #cbd5e0;
+            stroke-width: 2px;
+        }
+        
+        .expand-button {
+            fill: #4299e1;
+            cursor: pointer;
+        }
+        
+        .expand-button:hover {
+            fill: #3182ce;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+            color: #4a5568;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            border-top-color: #4299e1;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .control-btn {
+            padding: 0.5rem 1rem;
+            background-color: #edf2f7;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: #e2e8f0;
+        }
+    </style>
 </head>
 <body>
-  <div class="chat-container">
-    <div class="chat-header">
-      Llama-Powered Assistant
-    </div>
-    <div class="mode-switch">
-      <label for="chat-mode">Mode:</label>
-      <select id="chat-mode">
-        <option value="canned">Canned Responses</option>
-        <option value="llm">Llama LLM</option>
-      </select>
-    </div>
-    <div class="chat-messages" id="chat-messages">
-      <div class="message bot-message">
-        Hi there! 👋 I'm your Llama-powered assistant. How can I help you today?
-      </div>
-      <div class="typing-indicator" id="typing-indicator">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-    <div class="chat-input">
-      <input type="text" id="user-input" placeholder="Type your message here...">
-      <button id="send-button">Send</button>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const messagesContainer = document.getElementById('chat-messages');
-      const userInput = document.getElementById('user-input');
-      const sendButton = document.getElementById('send-button');
-      const typingIndicator = document.getElementById('typing-indicator');
-      const chatMode = document.getElementById('chat-mode');
-      
-      // Replace with your actual Cloudflare Worker URL
-      const WORKER_URL = 'https://empty-star-49ab.giridhurs.workers.dev/';
-      
-      // Chat history for context in LLM mode
-      let chatHistory = [
-        { role: "system", content: "You are a helpful, friendly assistant powered by a Llama model. Your answers should be concise and helpful." },
-        { role: "assistant", content: "Hi there! 👋 I'm your Llama-powered assistant. How can I help you today?" }
-      ];
-      
-      // Predefined responses for canned mode
-      const cannedResponses = {
-        'hello': "Hello! How can I assist you today?",
-        'hi': "Hi there! What can I help you with?",
-        'hey': "Hey! What brings you here today?",
-        'help': "I'd be happy to help! Please let me know what you need assistance with.",
-        'product': "We offer a range of products designed to meet your needs. Would you like more specific information about any particular product?",
-        'price': "Our pricing starts at $9.99 per month. We also offer custom packages for businesses. Would you like to see our full pricing details?",
-        'contact': "You can reach our support team at support@example.com or call us at (555) 123-4567 during business hours.",
-        'hours': "Our business hours are Monday to Friday, 9 AM to 6 PM EST.",
-        'location': "We're located at 123 Business Street, Suite 456, Cityville. Would you like directions?",
-        'thanks': "You're welcome! Is there anything else I can help you with?",
-        'thank you': "You're welcome! Is there anything else I can help you with?",
-        'bye': "Thank you for chatting! Have a great day!",
-        'goodbye': "Goodbye! Feel free to come back if you have more questions."
-      };
-      
-      // Default response for unrecognized inputs in canned mode
-      const defaultCannedResponse = "I'm not sure I understand. Could you please rephrase or ask another question? You can ask about our products, pricing, contact information, or business hours.";
-      
-      // Function to add a message to the chat
-      function addMessage(text, isUser) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message');
-        messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
-        messageDiv.textContent = text;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-      
-      // Function to show typing indicator
-      function showTypingIndicator() {
-        typingIndicator.style.display = 'block';
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-      
-      // Function to hide typing indicator
-      function hideTypingIndicator() {
-        typingIndicator.style.display = 'none';
-      }
-      
-      // Function to get canned response
-      function getCannedResponse(text) {
-        const lowerText = text.toLowerCase();
-        for (const keyword in cannedResponses) {
-          if (lowerText.includes(keyword)) {
-            return cannedResponses[keyword];
-          }
-        }
-        return defaultCannedResponse;
-      }
-      
-      // Function to get response from Llama model via Cloudflare Worker
-      async function getLlamaResponse(userMessage) {
-        try {
-          // Add user message to history
-          chatHistory.push({ role: "user", content: userMessage });
-          
-          const response = await fetch(WORKER_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              messages: chatHistory,
-              max_tokens: 256,
-              temperature: 0.7,
-            }),
-          });
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('Error from LLM service:', errorData);
-            throw new Error(`Server responded with ${response.status}`);
-          }
-          
-          const data = await response.json();
-          const assistantMessage = data.response || "Sorry, I couldn't generate a response.";
-          
-          // Add assistant message to history (limited to last 10 exchanges to prevent context overflow)
-          chatHistory.push({ role: "assistant", content: assistantMessage });
-          if (chatHistory.length > 21) { // system prompt + 10 exchanges (user + assistant)
-            chatHistory = [
-              chatHistory[0], // Keep system prompt
-              ...chatHistory.slice(-20) // Keep last 10 exchanges
-            ];
-          }
-          
-          return assistantMessage;
-        } catch (error) {
-          console.error('Error calling Llama via Cloudflare Worker:', error);
-          return "I'm having trouble connecting to my brain right now. Please try again later.";
-        }
-      }
-      
-      // Function to process user input and generate a response
-      async function processInput() {
-        const text = userInput.value.trim();
-        if (text === '') return;
+    <div class="container">
+        <header>
+            <h1>Idea Explorer</h1>
+            <p class="subtitle">Enter a concept to explore and watch it grow into a mindmap of possibilities</p>
+        </header>
         
-        // Add user message
-        addMessage(text, true);
-        userInput.value = '';
+        <div class="input-section">
+            <textarea class="prompt-input" placeholder="Enter an idea or concept you'd like to explore (e.g., 'Starting a sustainable bakery', 'Innovations in renewable energy', etc.)"></textarea>
+            <button class="generate-btn">Generate Mindmap</button>
+            <div class="loading">Generating your mindmap</div>
+        </div>
         
-        // Show typing indicator
-        showTypingIndicator();
+        <div class="controls">
+            <button class="control-btn" id="zoom-in">Zoom In</button>
+            <button class="control-btn" id="zoom-out">Zoom Out</button>
+            <button class="control-btn" id="center-map">Reset View</button>
+        </div>
         
-        let botResponse;
-        
-        if (chatMode.value === 'canned') {
-          // Use canned responses
-          botResponse = getCannedResponse(text);
-          setTimeout(() => {
-            hideTypingIndicator();
-            addMessage(botResponse, false);
-          }, 800 + Math.random() * 500);
-        } else {
-          // Use Llama LLM
-          try {
-            botResponse = await getLlamaResponse(text);
-            hideTypingIndicator();
-            addMessage(botResponse, false);
-          } catch (error) {
-            console.error('Error getting LLM response:', error);
-            hideTypingIndicator();
-            addMessage("I'm having trouble connecting to my brain right now. Please try again later.", false);
-          }
-        }
-      }
-      
-      // Event listeners
-      sendButton.addEventListener('click', processInput);
-      userInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          processInput();
-        }
-      });
-      
-      // Add a test button temporarily for debugging
-      const testButton = document.createElement('button');
-      testButton.textContent = 'Test Llama Connection';
-      testButton.style.position = 'fixed';
-      testButton.style.bottom = '10px';
-      testButton.style.right = '10px';
-      testButton.style.padding = '8px 12px';
-      testButton.style.background = '#4a6fa5';
-      testButton.style.color = 'green';
-      testButton.style.border = 'none';
-      testButton.style.borderRadius = '4px';
-      testButton.style.cursor = 'pointer';
-      
-      testButton.addEventListener('click', async function() {
-        console.log('Testing Llama connection...');
-        chatMode.value = 'llm'; // Ensure we're in LLM mode
-        const testResponse = await getLlamaResponse('Hello, are you working?');
-        console.log('Test response:', testResponse);
-        alert('Check console for test results');
-      });
-      
-      document.body.appendChild(testButton);
-      
-      // You can remove the test button code in production
-    });
-  </script>
+        <div class="mindmap-container" id="mindmap"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const promptInput = document.querySelector('.prompt-input');
+            const generateBtn = document.querySelector('.generate-btn');
+            const loadingIndicator = document.querySelector('.loading');
+            const mindmapContainer = document.getElementById('mindmap');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const centerMapBtn = document.getElementById('center-map');
+            
+            // D3 setup
+            const width = mindmapContainer.clientWidth;
+            const height = 500;
+            
+            // Initialize zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.3, 3])
+                .on('zoom', (event) => {
+                    svg.attr('transform', event.transform);
+                });
+            
+            // Create SVG container
+            const svgContainer = d3.select('#mindmap')
+                .append('svg')
+                .attr('width', '100%')
+                .attr('height', height)
+                .call(zoom);
+            
+            // Add a background rect for capturing zoom events
+            svgContainer.append('rect')
+                .attr('width', '100%')
+                .attr('height', height)
+                .attr('fill', 'none')
+                .attr('pointer-events', 'all');
+            
+            // Create a group that will contain all nodes and links
+            const svg = svgContainer.append('g')
+                .attr('transform', 'translate(0,0)');
+            
+            // D3 tree layout
+            const treeLayout = d3.tree()
+                .size([height - 100, width - 200])
+                .nodeSize([80, 200]);
+            
+            // Initial data
+            let root = null;
+            let llmEndpoint = 'https://workers-llama3-8b.cloudflare.workers.dev/completion';
+            
+            // Function to query the LLM for branches
+            async function queryLLM(prompt) {
+                try {
+                    const response = await fetch(llmEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            prompt: `Generate 4-5 subtopics or related concepts for exploring the topic: "${prompt}". 
+                                     Format: Just provide a JSON array of strings like ["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"].
+                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}".`,
+                            max_tokens: 300,
+                            stream: false
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to connect to LLM service');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    try {
+                        // Try to extract JSON from the completion
+                        const text = data.response || data.completion || '';
+                        const jsonMatch = text.match(/\[.*?\]/s);
+                        
+                        if (jsonMatch) {
+                            return JSON.parse(jsonMatch[0]);
+                        } else {
+                            // Fallback: parse each line as an item
+                            return text.split('\n')
+                                .filter(line => line.trim().length > 0)
+                                .map(line => line.replace(/^-\s*/, '').trim())
+                                .slice(0, 5);
+                        }
+                    } catch (parseError) {
+                        console.error('Failed to parse LLM response', parseError);
+                        return ['Error parsing response'];
+                    }
+                } catch (error) {
+                    console.error('LLM query error:', error);
+                    return ['Connection error'];
+                }
+            }
+            
+            // Function to generate initial mindmap
+            async function generateInitialMindmap() {
+                const prompt = promptInput.value.trim();
+                
+                if (!prompt) {
+                    alert('Please enter a concept to explore');
+                    return;
+                }
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                generateBtn.disabled = true;
+                
+                try {
+                    // Get initial branches from LLM
+                    const branches = await queryLLM(prompt);
+                    
+                    // Create root node
+                    root = d3.hierarchy({
+                        name: prompt,
+                        children: branches.map(branch => ({
+                            name: branch,
+                            children: []
+                        }))
+                    });
+                    
+                    // Update mindmap
+                    updateMindmap();
+                    
+                    // Center the mindmap
+                    centerMindmap();
+                } catch (error) {
+                    console.error('Error generating mindmap:', error);
+                    alert('Failed to generate mindmap. Please try again.');
+                } finally {
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    generateBtn.disabled = false;
+                }
+            }
+            
+            // Function to expand a node with new branches
+            async function expandNode(d) {
+                // Skip if node is already being expanded
+                if (d.data._expanding) return;
+                d.data._expanding = true;
+                
+                try {
+                    // Get new branches from LLM
+                    const branches = await queryLLM(d.data.name);
+                    
+                    // Add new branches to the node
+                    if (!d.data.children) {
+                        d.data.children = [];
+                    }
+                    
+                    branches.forEach(branch => {
+                        d.data.children.push({
+                            name: branch,
+                            children: []
+                        });
+                    });
+                    
+                    // Update mindmap
+                    updateMindmap();
+                } catch (error) {
+                    console.error('Error expanding node:', error);
+                    alert('Failed to expand node. Please try again.');
+                } finally {
+                    d.data._expanding = false;
+                }
+            }
+            
+            // Function to update the mindmap visualization
+            function updateMindmap() {
+                if (!root) return;
+                
+                // Apply tree layout
+                const treeData = treeLayout(root);
+                
+                // Compute the new tree layout
+                const nodes = treeData.descendants();
+                const links = treeData.links();
+                
+                // Define curved line generator
+                const linkGenerator = d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x);
+                
+                // Update links
+                const link = svg.selectAll('path.link')
+                    .data(links, d => d.target.id || (d.target.id = Math.random().toString(36).substr(2, 9)));
+                
+                // Enter new links
+                link.enter()
+                    .append('path')
+                    .attr('class', 'link')
+                    .merge(link)
+                    .transition()
+                    .duration(750)
+                    .attr('d', linkGenerator);
+                
+                // Exit old links
+                link.exit().remove();
+                
+                // Update nodes
+                const node = svg.selectAll('g.node')
+                    .data(nodes, d => d.id || (d.id = Math.random().toString(36).substr(2, 9)));
+                
+                // Enter new nodes
+                const nodeEnter = node.enter()
+                    .append('g')
+                    .attr('class', 'node')
+                    .attr('transform', d => `translate(${d.y},${d.x})`)
+                    .on('click', (event, d) => {
+                        expandNode(d);
+                    });
+                
+                // Add circles to nodes
+                nodeEnter.append('circle')
+                    .attr('r', 10)
+                    .attr('fill', d => d.children ? '#ebf8ff' : '#fff');
+                
+                // Add labels to nodes
+                nodeEnter.append('text')
+                    .attr('dy', '.35em')
+                    .attr('x', 15)
+                    .attr('text-anchor', 'start')
+                    .text(d => d.data.name);
+                
+                // Update existing nodes
+                node.transition()
+                    .duration(750)
+                    .attr('transform', d => `translate(${d.y},${d.x})`);
+                
+                // Exit any old nodes
+                node.exit().remove();
+            }
+            
+            // Function to center the mindmap
+            function centerMindmap() {
+                if (!root) return;
+                
+                const bounds = svgContainer.node().getBBox();
+                const containerWidth = mindmapContainer.clientWidth;
+                const containerHeight = height;
+                
+                const scale = 0.9 / Math.max(
+                    bounds.width / containerWidth,
+                    bounds.height / containerHeight
+                );
+                
+                const translate = [
+                    containerWidth / 2 - scale * (bounds.x + bounds.width / 2),
+                    containerHeight / 2 - scale * (bounds.y + bounds.height / 2)
+                ];
+                
+                svgContainer.transition()
+                    .duration(750)
+                    .call(
+                        zoom.transform,
+                        d3.zoomIdentity
+                            .translate(translate[0], translate[1])
+                            .scale(scale)
+                    );
+            }
+            
+            // Event listeners
+            generateBtn.addEventListener('click', generateInitialMindmap);
+            
+            zoomInBtn.addEventListener('click', () => {
+                svgContainer.transition()
+                    .duration(300)
+                    .call(zoom.scaleBy, 1.3);
+            });
+            
+            zoomOutBtn.addEventListener('click', () => {
+                svgContainer.transition()
+                    .duration(300)
+                    .call(zoom.scaleBy, 0.7);
+            });
+            
+            centerMapBtn.addEventListener('click', centerMindmap);
+            
+            // Handle Enter key in the textarea
+            promptInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    generateInitialMindmap();
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                // Update the tree layout size
+                treeLayout.size([height - 100, mindmapContainer.clientWidth - 200]);
+                
+                // Update the mindmap
+                updateMindmap();
+            });
+        });
+    </script>
 </body>
 </html>
