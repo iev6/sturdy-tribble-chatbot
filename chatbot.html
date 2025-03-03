@@ -79,6 +79,29 @@
             cursor: not-allowed;
         }
         
+        .api-config {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 4px;
+            border: 1px dashed #cbd5e0;
+        }
+        
+        .api-config h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        
+        .api-input {
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        
         .mindmap-container {
             background-color: white;
             padding: 1rem;
@@ -229,6 +252,17 @@
             color: white;
             border-color: #3182ce;
         }
+        
+        .saved-keys {
+            color: #4a5568;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .saved-keys span {
+            font-weight: bold;
+            color: #2d3748;
+        }
     </style>
 </head>
 <body>
@@ -240,6 +274,16 @@
         
         <div class="input-section">
             <textarea class="prompt-input" placeholder="Enter an idea or concept you'd like to explore (e.g., 'Starting a sustainable bakery', 'Innovations in renewable energy', etc.)"></textarea>
+            
+            <div class="api-config">
+                <h3>Cloudflare AI API Configuration</h3>
+                <input type="text" class="api-input" id="account-id" placeholder="Cloudflare Account ID">
+                <input type="text" class="api-input" id="api-token" placeholder="Cloudflare API Token">
+                <input type="text" class="api-input" id="model-name" placeholder="Model Name (e.g., @cf/meta/llama-3-8b-instruct)" value="@cf/meta/llama-3-8b-instruct">
+                <button class="control-btn" id="save-config">Save Configuration</button>
+                <div class="saved-keys" id="saved-keys-status"></div>
+            </div>
+            
             <button class="generate-btn">Generate Mindmap</button>
             <div class="loading">Generating your mindmap</div>
         </div>
@@ -274,9 +318,29 @@
             const expandModeBtn = document.getElementById('expand-mode');
             const deleteModeBtn = document.getElementById('delete-mode');
             const tooltip = document.getElementById('tooltip');
+            const accountIdInput = document.getElementById('account-id');
+            const apiTokenInput = document.getElementById('api-token');
+            const modelNameInput = document.getElementById('model-name');
+            const saveConfigBtn = document.getElementById('save-config');
+            const savedKeysStatus = document.getElementById('saved-keys-status');
             
             // Interaction mode (expand or delete)
             let interactionMode = 'expand';
+            
+            // Cloudflare AI API configuration
+            let cloudflareConfig = {
+                accountId: localStorage.getItem('cf-account-id') || '',
+                apiToken: localStorage.getItem('cf-api-token') || '',
+                modelName: localStorage.getItem('cf-model-name') || '@cf/meta/llama-3-8b-instruct'
+            };
+            
+            // Initialize config inputs
+            accountIdInput.value = cloudflareConfig.accountId;
+            apiTokenInput.value = cloudflareConfig.apiToken;
+            modelNameInput.value = cloudflareConfig.modelName;
+            
+            // Update status message for saved keys
+            updateSavedKeysStatus();
             
             // D3 setup
             const width = mindmapContainer.clientWidth;
@@ -314,44 +378,89 @@
             
             // Initial data
             let root = null;
-            let llmEndpoint = 'https://workers-llama3-8b.cloudflare.workers.dev/completion';
             
-            // Function to query the LLM for branches
+            // Function to save Cloudflare configuration
+            function saveCloudflareConfig() {
+                cloudflareConfig.accountId = accountIdInput.value.trim();
+                cloudflareConfig.apiToken = apiTokenInput.value.trim();
+                cloudflareConfig.modelName = modelNameInput.value.trim();
+                
+                localStorage.setItem('cf-account-id', cloudflareConfig.accountId);
+                localStorage.setItem('cf-api-token', cloudflareConfig.apiToken);
+                localStorage.setItem('cf-model-name', cloudflareConfig.modelName);
+                
+                updateSavedKeysStatus();
+            }
+            
+            // Function to update saved keys status message
+            function updateSavedKeysStatus() {
+                if (cloudflareConfig.accountId && cloudflareConfig.apiToken) {
+                    savedKeysStatus.innerHTML = 'API Configuration: <span>Saved</span>';
+                } else {
+                    savedKeysStatus.innerHTML = 'API Configuration: <span>Not configured</span>';
+                }
+            }
+            
+            // Function to query the Cloudflare AI API for branches
             async function queryLLM(prompt) {
+                if (!cloudflareConfig.accountId || !cloudflareConfig.apiToken) {
+                    alert('Please configure your Cloudflare AI API credentials first.');
+                    return ['Configuration required'];
+                }
+                
+                const cloudflareAiEndpoint = `https://api.cloudflare.com/client/v4/accounts/${cloudflareConfig.accountId}/ai/run/${cloudflareConfig.modelName}`;
+                
                 try {
-                    const response = await fetch(llmEndpoint, {
+                    const response = await fetch(cloudflareAiEndpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${cloudflareConfig.apiToken}`
                         },
                         body: JSON.stringify({
-                            prompt: `Generate 4-5 subtopics or related concepts for exploring the topic: "${prompt}". 
-                                     Format: Just provide a JSON array of strings like ["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"].
-                                     Each subtopic should be brief (2-5 words) and directly related to "${prompt}".`,
-                            max_tokens: 300,
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: "You are a helpful assistant that generates mindmap branches. Respond with JSON arrays only."
+                                },
+                                {
+                                    role: "user",
+                                    content: `Generate 4-5 subtopics or related concepts for exploring the topic: "${prompt}". 
+                                    Format your response as a JSON array of strings ONLY, like this: ["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"].
+                                    Each subtopic should be brief (2-5 words) and directly related to "${prompt}".
+                                    DO NOT include any explanations, just the JSON array.`
+                                }
+                            ],
                             stream: false
                         })
                     });
                     
                     if (!response.ok) {
-                        throw new Error('Failed to connect to LLM service');
+                        const errorData = await response.json();
+                        console.error('Cloudflare API error:', errorData);
+                        throw new Error(`API error: ${errorData.errors?.[0]?.message || 'Unknown error'}`);
                     }
                     
                     const data = await response.json();
+                    const resultText = data.result?.response || '';
                     
                     try {
                         // Try to extract JSON from the completion
-                        const text = data.response || data.completion || '';
-                        const jsonMatch = text.match(/\[.*?\]/s);
+                        const jsonMatch = resultText.match(/\[.*?\]/s);
                         
                         if (jsonMatch) {
                             return JSON.parse(jsonMatch[0]);
                         } else {
-                            // Fallback: parse each line as an item
-                            return text.split('\n')
-                                .filter(line => line.trim().length > 0)
-                                .map(line => line.replace(/^-\s*/, '').trim())
-                                .slice(0, 5);
+                            // Fallback: Try to parse the entire response as JSON
+                            try {
+                                return JSON.parse(resultText);
+                            } catch {
+                                // Last resort: split by commas or lines
+                                return resultText.split(/[,\n]/)
+                                    .map(item => item.trim().replace(/^["'\s-]+|["'\s]+$/g, ''))
+                                    .filter(item => item.length > 0)
+                                    .slice(0, 5);
+                            }
                         }
                     } catch (parseError) {
                         console.error('Failed to parse LLM response', parseError);
@@ -359,7 +468,7 @@
                     }
                 } catch (error) {
                     console.error('LLM query error:', error);
-                    return ['Connection error'];
+                    return [`API Error: ${error.message}`];
                 }
             }
             
@@ -411,6 +520,9 @@
                 d.data._expanding = true;
                 
                 try {
+                    // Show loading indicator
+                    loadingIndicator.style.display = 'block';
+                    
                     // Get new branches from LLM
                     const branches = await queryLLM(d.data.name);
                     
@@ -433,6 +545,7 @@
                     alert('Failed to expand node. Please try again.');
                 } finally {
                     d.data._expanding = false;
+                    loadingIndicator.style.display = 'none';
                 }
             }
             
@@ -608,6 +721,7 @@
             
             // Event listeners
             generateBtn.addEventListener('click', generateInitialMindmap);
+            saveConfigBtn.addEventListener('click', saveCloudflareConfig);
             
             zoomInBtn.addEventListener('click', () => {
                 svgContainer.transition()
