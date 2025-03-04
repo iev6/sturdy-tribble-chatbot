@@ -376,8 +376,8 @@
                     .attr("class", "link")
                     .merge(link)
                     .attr("d", d3.linkHorizontal()
-                        .x(d => d.x)
-                        .y(d => d.y)
+                        .x(d => d.y)
+                        .y(d => d.x)
                         );
                 link.exit().remove();
             }
