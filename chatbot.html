@@ -352,7 +352,8 @@
                     branches.forEach(branch => {
                         d.data.children.push({
                             name: branch,
-                            children: []
+                            children: [],
+                            parent: d // melog add parent reference 
                         });
                     });
                     //console.log(d.data.children) // melog
@@ -379,6 +380,7 @@
                 const nodes = treeData.descendants();
                 const links = treeData.links();
                 console.log(nodes); // melog
+                console.log("links")// melog
                 console.log(links); // melog
                 
                 // Define curved line generator
@@ -404,7 +406,7 @@
                 
                 // Update nodes
                 const node = svg.selectAll('g.node')
-                    .data(nodes, d => d.id || (d.id = Math.random().toString(36).substr(2, 9)));
+                    .data(nodes, d => d.id || (d.id = `${d.parent ? d.parent.id + '-' : ''}${d.data.name}`)); // melog consistency across updates
                 
                 // Enter new nodes
                 const nodeEnter = node.enter()
@@ -412,6 +414,7 @@
                     .attr('class', 'node')
                     .attr('transform', d => `translate(${d.y},${d.x})`)
                     .on('click', (event, d) => {
+                        console.log("Clicked node:", d.data.name); // melog
                         expandNode(d);
                     });
                 
