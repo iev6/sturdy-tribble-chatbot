@@ -336,6 +336,9 @@
                 // Skip if node is already being expanded
                 if (d.data._expanding) return;
                 d.data._expanding = true;
+
+                d.data._loading = true; // add loading state melog
+                updateMindmap();
                 
                 try {
                     // Get new branches from LLM
@@ -353,6 +356,7 @@
                         });
                     });
                     //console.log(d.data.children) // melog
+                    d.data._loading = false; // Remove loading state melog
                     // Update mindmap
                     updateMindmap();
                 } catch (error) {
@@ -360,12 +364,13 @@
                     alert('Failed to expand node. Please try again.');
                 } finally {
                     d.data._expanding = false;
+                    updateMindmap();
                 }
             }
             
             // Function to update the mindmap visualization
             function updateMindmap() {
-                //if (!root) return; // melog
+                if (!root) return; // melog
                 
                 // Apply tree layout
                 const treeData = treeLayout(root);
@@ -374,6 +379,7 @@
                 const nodes = treeData.descendants();
                 const links = treeData.links();
                 console.log(nodes); // melog
+                console.log(links); // melog
                 
                 // Define curved line generator
                 const linkGenerator = d3.linkHorizontal()
@@ -421,6 +427,15 @@
                     .attr('text-anchor', 'start')
                     .text(d => d.data.name);
                 
+                // Show "Loading..." text below nodes that are expanding melogf
+                nodeEnter.append('text')
+                .attr('class', 'loading-text')
+                .attr('dy', '1.5em')
+                .attr('x', 15)
+                .attr('text-anchor', 'start')
+                .attr('fill', '#888')
+                .text(d => (d.data._loading ? 'Loading...' : ''));    
+
                 // Update existing nodes
                 node.transition()
                     .duration(750)
