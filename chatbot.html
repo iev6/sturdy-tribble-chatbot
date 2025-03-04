@@ -264,13 +264,13 @@
                     
                     try {
                         // Try to extract JSON from the completion
-                        console.log(data); // melog
+                        // console.log(data); // melog
                         //console.log(data.completion);
                         //const text = data.response || data.completion || '';
                         const text = data.result.response; //iev6 edit
-                        console.log(text); // melog
+                        //console.log(text); // melog
                         const jsonMatch = text.match(/\[.*?\]/s);
-                        console.log(jsonMatch);
+                        //console.log(jsonMatch);
                         if (jsonMatch) {
                             return JSON.parse(jsonMatch[0]);
                         } else {
@@ -306,7 +306,7 @@
                 try {
                     // Get initial branches from LLM
                     const branches = await queryLLM(prompt);
-                    console.log(branches); // melog
+                   // console.log(branches); // melog
                     // Create root node
                     root = d3.hierarchy({
                         name: prompt,
@@ -345,10 +345,8 @@
                     const branches = await queryLLM(d.data.name);
                     //console.log(branches) // melog
                     // Add new branches to the node
-                    if (!d.data.children) {
-                        d.data.children = [];
-                    }
-                    
+                    d.data.children = d.data.children || [];
+
                     branches.forEach(branch => {
                         d.data.children.push({
                             name: branch,
@@ -379,7 +377,7 @@
                 // Compute the new tree layout
                 const nodes = treeData.descendants();
                 const links = treeData.links();
-                console.log(nodes); // melog
+                //console.log(nodes); // melog
                 console.log("links")// melog
                 console.log(links); // melog
                 
@@ -390,7 +388,8 @@
                 
                 // Update links
                 const link = svg.selectAll('path.link')
-                    .data(links, d => d.target.id || (d.target.id = Math.random().toString(36).substr(2, 9)));
+                    .data(links, d => d.target.id);
+                    //.data(links, d => d.target.id || (d.target.id = Math.random().toString(36).substr(2, 9)));
                 
                 // Enter new links
                 link.enter()
