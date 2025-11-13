@@ -1,0 +1,48 @@
+{
+  "name": "Penny Philosopher",
+  "description": "Explore ideas and concepts with interactive mindmaps",
+  "version": "1.0.0",
+  "author": "",
+  "url": "https://pennyphilosopher.com",
+  "collections": [
+    {
+      "id": "home",
+      "name": "Home",
+      "description": "Main pages",
+      "items": [
+        {
+          "id": "index",
+          "title": "Home",
+          "path": "/index.html",
+          "date": "2025-11-13T00:00:00.000Z"
+        },
+        {
+          "id": "idea-explorer",
+          "title": "Idea Explorer",
+          "path": "/chatbot.html",
+          "date": "2025-11-13T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "pages",
+      "name": "Pages",
+      "description": "Content pages",
+      "items": [
+        {
+          "id": "pages-index",
+          "title": "Pages",
+          "path": "/pages/index.html",
+          "date": "2025-11-13T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "theme": {
+    "name": "default",
+    "version": "1.0.0"
+  },
+  "build": {
+    "date": "2025-11-13T00:00:00.000Z"
+  }
+}
