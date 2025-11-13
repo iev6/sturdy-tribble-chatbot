@@ -111,6 +111,16 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
+        .cta-button.secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .cta-button.secondary:hover {
+            background: #f7fafc;
+        }
+
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -146,30 +156,45 @@
             margin-bottom: 1rem;
         }
 
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #2c5282;
+            margin-bottom: 1rem;
+        }
+
+        .info-box p {
+            color: #2c5282;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box a {
+            color: #2b6cb0;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .info-box ol {
+            margin-left: 1.5rem;
+            color: #2c5282;
+        }
+
+        .info-box ol li {
+            margin: 0.5rem 0;
+        }
+
         footer {
             background: #2d3748;
             color: white;
             text-align: center;
             padding: 2rem 0;
             margin-top: 4rem;
-        }
-
-        .admin-notice {
-            background: #ebf8ff;
-            border-left: 4px solid #4299e1;
-            padding: 1rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-        }
-
-        .admin-notice p {
-            color: #2c5282;
-            margin-bottom: 0.5rem;
-        }
-
-        .admin-notice a {
-            color: #2b6cb0;
-            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -205,7 +230,7 @@
             <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/chatbot.html">Idea Explorer</a></li>
-                <li><a href="/admin">Edit Content (CMS)</a></li>
+                <li><a href="/pages">Pages</a></li>
             </ul>
         </div>
     </nav>
@@ -216,7 +241,7 @@
                 <h2>Welcome to Penny Philosopher</h2>
                 <p>Discover new perspectives through interactive exploration and thoughtful content</p>
                 <a href="/chatbot.html" class="cta-button">Launch Idea Explorer</a>
-                <a href="/admin" class="cta-button">Manage Content</a>
+                <a href="https://app.sparktype.org" target="_blank" class="cta-button secondary">Edit with Sparktype</a>
             </div>
 
             <div class="features">
@@ -228,21 +253,39 @@
 
                 <div class="feature-card">
                     <div class="icon">📱</div>
-                    <h3>Mobile-Friendly CMS</h3>
-                    <p>Edit and publish content from anywhere using our browser-based content management system. No app installation required.</p>
+                    <h3>Mobile-Friendly Editing</h3>
+                    <p>Create and edit content using Sparktype from any device. The browser-based editor works seamlessly on desktop, tablet, and mobile.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="icon">🚀</div>
-                    <h3>Instant Publishing</h3>
-                    <p>Changes are automatically deployed when you publish. Your content goes live within minutes of hitting publish.</p>
+                    <h3>Static & Fast</h3>
+                    <p>Pure HTML and CSS pages load instantly. No databases, no server-side processing—just fast, secure static content.</p>
                 </div>
             </div>
 
-            <div class="admin-notice">
-                <p><strong>Content Management:</strong></p>
-                <p>To add or edit pages, visit the <a href="/admin">admin panel</a>. You'll need to authenticate with GitHub the first time.</p>
-                <p><strong>First-time setup:</strong> The CMS will request access to your GitHub account. This is required to save changes to your repository.</p>
+            <div class="info-box">
+                <h3>How to Add/Edit Pages with Sparktype</h3>
+                <p>This site uses <a href="https://app.sparktype.org" target="_blank">Sparktype</a>, a browser-based publishing platform that combines ease of use with static site performance.</p>
+
+                <p><strong>Workflow:</strong></p>
+                <ol>
+                    <li>Visit <a href="https://app.sparktype.org" target="_blank">app.sparktype.org</a> on any device (mobile or desktop)</li>
+                    <li>Create or edit your content using the simple, powerful editor</li>
+                    <li>Export your site (downloads as a ZIP file)</li>
+                    <li>Extract the ZIP and commit the files to this GitHub repository</li>
+                    <li>Push to the main branch—GitHub Actions will deploy automatically!</li>
+                </ol>
+
+                <p><strong>Benefits:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Edit from any mobile browser—no app needed</li>
+                    <li>Beautiful, distraction-free editing interface</li>
+                    <li>Pure HTML/CSS output—fast and secure</li>
+                    <li>Complete control over your content</li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><em>For detailed instructions, see <a href="/SPARKTYPE_GUIDE.md">SPARKTYPE_GUIDE.md</a></em></p>
             </div>
         </div>
     </main>
@@ -250,7 +293,7 @@
     <footer>
         <div class="container">
             <p>&copy; 2025 Penny Philosopher. All rights reserved.</p>
-            <p>Built with ❤️ using Decap CMS and GitHub Pages</p>
+            <p>Built with ❤️ using Sparktype and GitHub Pages</p>
         </div>
     </footer>
 </body>
