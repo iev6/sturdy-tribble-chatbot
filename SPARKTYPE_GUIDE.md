@@ -28,9 +28,39 @@ Sparktype is designed with three core principles:
 
 ---
 
+## Important: GitHub Branch Setup
+
+**Note:** Sparktype may try to import from the `master` branch by default. This repository uses `main`.
+
+If you get an import error, you need to either:
+1. **Create a master branch alias** (recommended):
+   ```bash
+   git checkout main
+   git branch master
+   git push origin master
+   ```
+2. **Or** wait for Sparktype to add main branch support
+
 ## How to Use Sparktype with This Repository
 
-### Desktop Workflow (Recommended)
+### Method 1: Import from GitHub (After Merge to Main)
+
+1. **Ensure Changes Are Merged**
+   - Merge this branch to `main`
+   - Ensure `_site/manifest.json` is present
+   - Push to GitHub
+
+2. **Import into Sparktype**
+   - Visit [app.sparktype.org](https://app.sparktype.org)
+   - Click "Import from GitHub"
+   - Enter: `iev6/sturdy-tribble-chatbot`
+   - Select branch: `main` (or `master` if you created the alias)
+
+3. **Edit and Export**
+   - Edit your content in Sparktype
+   - Export when done
+
+### Method 2: Create New Site in Sparktype (Easier)
 
 1. **Open Sparktype**
    - Visit [app.sparktype.org](https://app.sparktype.org) in your browser
